@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import {
     Table,
     Button,
@@ -639,17 +639,20 @@ const OrdersPage = () => {
                             {/* Order Status */}
                             <Card size="small" style={{ marginBottom: 16 }}>
                                 <Row gutter={16}>
-                                    <Col span={12}>
+                                    <Col span={8}>
                                         <Text strong>Status: </Text>
                                         <Tag color={getStatusColor(selectedOrder.status)}>
                                             {selectedOrder.status}
                                         </Tag>
                                     </Col>
-                                    <Col span={12}>
+                                    <Col span={8}>
                                         <Text strong>Payment: </Text>
                                         <Tag color={getPaymentStatusColor(selectedOrder.paymentStatus)}>
                                             {selectedOrder.paymentStatus}
                                         </Tag>
+                                    </Col>
+                                    <Col span={8}>
+                                        <Link to={`/orders/${selectedOrder.orderId}`}>Click for details</Link>
                                     </Col>
                                 </Row>
                             </Card>
