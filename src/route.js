@@ -6,6 +6,9 @@ import OrderDetailsController from "./pages/order/OrderDetailControllerPage.js";
 import ProductListPage from "./pages/product/list";
 import ProductCreatePage from "./pages/product/ProductCreate";
 import ProductEditPage from "./pages/product/ProductEditPage";
+import CustomersPage from "./pages/customer/ListPage.js";
+import CustomerCreatePage from "./pages/customer/CustomerCreatePage.js";
+import CustomerEditPage from "./pages/customer/CustomerEditPage.js";
 
 export const routes = [
     {
@@ -39,5 +42,17 @@ export const routes = [
     {
         path: "/orders/:pageId",
         element: <OrderDetailsController />
-    }
+    },
+    {
+        path: "/customers",
+        element: <CustomersPage />
+    },
+    {
+        path: "/customers/new",
+        element: <CustomerCreatePage />
+    },
+    {
+        path: "/customers/:pageId",
+        element: <CustomerEditPage />
+    },
 ]

@@ -51,8 +51,7 @@ const AppLayout = (props) => {
         {
             key: 'customers',
             icon: <TeamOutlined />,
-            label: 'Customers',
-            onClick: () => setCurrentPage('customers')
+            label: <NavLink to="/customers">Customers</NavLink>
         },
         {
             key: 'reports',
