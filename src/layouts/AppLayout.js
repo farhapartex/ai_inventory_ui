@@ -20,6 +20,7 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined
 } from '@ant-design/icons';
+import { NavLink } from "react-router";
 import { RootLeftBar } from '../components/layout/RootLeftbar';
 
 const { Header, Sider, Content } = Layout;
@@ -41,8 +42,7 @@ const AppLayout = (props) => {
         {
             key: 'products',
             icon: <InboxOutlined />,
-            label: 'Products',
-            onClick: () => setCurrentPage('products')
+            label: <NavLink to="/products">Products</NavLink>
         },
         {
             key: 'orders',
