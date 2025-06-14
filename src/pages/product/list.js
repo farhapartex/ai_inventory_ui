@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router";
 import {
     Table,
     Button,
@@ -60,6 +61,8 @@ const generateSampleData = () => {
 };
 
 const ProductListPage = () => {
+    let navigate = useNavigate();
+
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -304,7 +307,7 @@ const ProductListPage = () => {
                         <Button
                             type="text"
                             icon={<EyeOutlined />}
-                            onClick={() => handleView(record)}
+                            onClick={() => navigate(`/products/${record.id}`)}
                         />
                     </Tooltip>
                     <Tooltip title="Edit Product">
@@ -360,7 +363,7 @@ const ProductListPage = () => {
                                 type="primary"
                                 icon={<PlusOutlined />}
                                 size="large"
-                                onClick={() => message.info('Navigate to Add Product page')}
+                                onClick={() => navigate("/products/new")}
                                 style={{ minWidth: 140 }}
                             >
                                 New Product
