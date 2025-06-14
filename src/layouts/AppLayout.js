@@ -20,6 +20,7 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined
 } from '@ant-design/icons';
+import { RootLeftBar } from '../components/layout/RootLeftbar';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -96,34 +97,7 @@ const AppLayout = (props) => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider
-                trigger={null}
-                collapsible
-                collapsed={collapsed}
-                style={{
-                    background: '#001529',
-                }}
-            >
-                <div style={{
-                    height: '64px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '18px',
-                    fontWeight: 'bold',
-                    borderBottom: '1px solid #303030'
-                }}>
-                    {collapsed ? 'IS' : 'AI Inventory'}
-                </div>
-                <Menu
-                    theme="dark"
-                    mode="inline"
-                    selectedKeys={[currentPage]}
-                    items={menuItems}
-                    style={{ borderRight: 0 }}
-                />
-            </Sider>
+            <RootLeftBar collapsed={collapsed} currentPage={currentPage} menuItems={menuItems} />
 
             <Layout>
                 <Header style={{
