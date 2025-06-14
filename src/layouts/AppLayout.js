@@ -36,8 +36,7 @@ const AppLayout = (props) => {
         {
             key: 'dashboard',
             icon: <DashboardOutlined />,
-            label: 'Dashboard',
-            onClick: () => setCurrentPage('dashboard')
+            label: <NavLink to="/">Dashboard</NavLink>
         },
         {
             key: 'products',
@@ -47,8 +46,7 @@ const AppLayout = (props) => {
         {
             key: 'orders',
             icon: <ShoppingCartOutlined />,
-            label: 'Orders',
-            onClick: () => setCurrentPage('orders')
+            label: <NavLink to="/orders">Orders</NavLink>
         },
         {
             key: 'customers',
