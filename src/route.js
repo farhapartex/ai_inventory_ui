@@ -1,9 +1,10 @@
 import Login from "./pages/auth/Login";
+import Dashboard from "./pages/Dashboard";
 
 export const routes = [
     {
         path: "/",
-        element: <Login />,
+        element: <Dashboard />,
     },
     {
         path: "/login",
