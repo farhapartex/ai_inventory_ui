@@ -1,8 +1,8 @@
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/Dashboard";
 import OrderCreatePage from "./pages/order/NewOrder";
-import OrderEditPage from "./pages/order/OrderEditPage";
 import OrdersPage from "./pages/order/OrderList";
+import OrderDetailsController from "./pages/order/OrderDetailControllerPage.js";
 import ProductListPage from "./pages/product/list";
 import ProductCreatePage from "./pages/product/ProductCreate";
 import ProductEditPage from "./pages/product/ProductEditPage";
@@ -38,6 +38,6 @@ export const routes = [
     },
     {
         path: "/orders/:pageId",
-        element: <OrderEditPage />
+        element: <OrderDetailsController />
     }
 ]
