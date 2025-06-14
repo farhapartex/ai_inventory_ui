@@ -10,6 +10,8 @@ import CustomersPage from "./pages/customer/ListPage.js";
 import CustomerCreatePage from "./pages/customer/CustomerCreatePage.js";
 import CustomerEditPage from "./pages/customer/CustomerEditPage.js";
 import Report from "./pages/Report.js";
+import SystemUsersPage from "./pages/management/user/ListPage.js";
+import RolesPermissionsPage from "./pages/management/role_permission/Role.js";
 
 export const routes = [
     {
@@ -59,5 +61,13 @@ export const routes = [
     {
         path: "/reports",
         element: <Report />
+    },
+    {
+        path: "/manage-users",
+        element: <SystemUsersPage />
+    },
+    {
+        path: "/role-permission-management",
+        element: <RolesPermissionsPage />
     },
 ]

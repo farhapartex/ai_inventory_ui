@@ -18,7 +18,9 @@ import {
     LogoutOutlined,
     ProfileOutlined,
     MenuFoldOutlined,
-    MenuUnfoldOutlined
+    MenuUnfoldOutlined,
+    UsergroupAddOutlined,
+    SafetyOutlined
 } from '@ant-design/icons';
 import { NavLink } from "react-router";
 import { RootLeftBar } from '../components/layout/RootLeftbar';
@@ -57,6 +59,16 @@ const AppLayout = (props) => {
             key: 'reports',
             icon: <BarChartOutlined />,
             label: <NavLink to="/reports">Reports</NavLink>
+        },
+        {
+            key: 'userManagement',
+            icon: <UsergroupAddOutlined />,
+            label: <NavLink to="/manage-users">User Management</NavLink>
+        },
+        {
+            key: 'rolePermission',
+            icon: <SafetyOutlined />,
+            label: <NavLink to="/role-permission-management">Role Permission</NavLink>
         },
         {
             key: 'settings',
@@ -126,7 +138,6 @@ const AppLayout = (props) => {
                     </Dropdown>
                 </Header>
 
-                {/* Content */}
                 <Content style={{
                     margin: '24px',
                     padding: '24px',
