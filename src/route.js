@@ -9,6 +9,7 @@ import ProductEditPage from "./pages/product/ProductEditPage";
 import CustomersPage from "./pages/customer/ListPage.js";
 import CustomerCreatePage from "./pages/customer/CustomerCreatePage.js";
 import CustomerEditPage from "./pages/customer/CustomerEditPage.js";
+import Report from "./pages/Report.js";
 
 export const routes = [
     {
@@ -54,5 +55,9 @@ export const routes = [
     {
         path: "/customers/:pageId",
         element: <CustomerEditPage />
+    },
+    {
+        path: "/reports",
+        element: <Report />
     },
 ]

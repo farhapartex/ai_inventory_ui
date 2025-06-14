@@ -56,8 +56,7 @@ const AppLayout = (props) => {
         {
             key: 'reports',
             icon: <BarChartOutlined />,
-            label: 'Reports',
-            onClick: () => setCurrentPage('reports')
+            label: <NavLink to="/reports">Reports</NavLink>
         },
         {
             key: 'settings',
