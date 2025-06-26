@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     Layout,
-    Menu,
     Dropdown,
     Avatar,
-    Button,
-    Typography
+    Button
 } from 'antd';
 import {
     DashboardOutlined,
@@ -22,18 +20,28 @@ import {
     UsergroupAddOutlined,
     SafetyOutlined
 } from '@ant-design/icons';
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { RootLeftBar } from '../components/layout/RootLeftbar';
+import { useAppDispatch } from '../store/hooks';
+import { logoutUser } from '../store/slices/authSlice';
 
-const { Header, Sider, Content } = Layout;
-const { Title, Text } = Typography;
+const { Header, Content } = Layout;
 
 const AppLayout = (props) => {
     const { children } = props;
     const [collapsed, setCollapsed] = useState(false);
     const [currentPage, setCurrentPage] = useState('dashboard');
 
-    // Menu items for sidebar
+    const dispatch = useAppDispatch();
+    let navigate = useNavigate();
+
+    const logout = async () => {
+        const result = await dispatch(logoutUser());
+        if (logoutUser.fulfilled.match(result)) {
+            navigate('/login', { replace: true });
+        }
+    }
+
     const menuItems = [
         {
             key: 'dashboard',
@@ -78,7 +86,6 @@ const AppLayout = (props) => {
         }
     ];
 
-    // Header dropdown menu
     const userMenuItems = [
         {
             key: 'profile',
@@ -99,7 +106,7 @@ const AppLayout = (props) => {
             key: 'logout',
             icon: <LogoutOutlined />,
             label: 'Logout',
-            onClick: () => console.log('Logout clicked')
+            onClick: () => logout()
         },
     ];
 
