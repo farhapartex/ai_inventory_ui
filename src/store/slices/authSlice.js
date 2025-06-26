@@ -43,7 +43,7 @@ export const logoutUser = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             localStorage.removeItem('token');
-            return {};
+            return null;
         } catch (error) {
             return rejectWithValue(error.response.data);
         }
@@ -51,6 +51,7 @@ export const logoutUser = createAsyncThunk(
 );
 
 const initialState = {
+    user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
     isLoading: false,
     isAuthenticated: !!localStorage.getItem('token'),
