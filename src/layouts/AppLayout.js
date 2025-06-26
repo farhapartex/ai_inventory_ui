@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Layout,
     Dropdown,
@@ -22,7 +22,7 @@ import {
 } from '@ant-design/icons';
 import { NavLink, useNavigate } from "react-router";
 import { RootLeftBar } from '../components/layout/RootLeftbar';
-import { useAppDispatch } from '../store/hooks';
+import { useAppDispatch, useAuth } from '../store/hooks';
 import { logoutUser } from '../store/slices/authSlice';
 
 const { Header, Content } = Layout;
@@ -34,6 +34,7 @@ const AppLayout = (props) => {
 
     const dispatch = useAppDispatch();
     let navigate = useNavigate();
+    const { isLoading, error, isAuthenticated } = useAuth();
 
     const logout = async () => {
         const result = await dispatch(logoutUser());
@@ -109,6 +110,12 @@ const AppLayout = (props) => {
             onClick: () => logout()
         },
     ];
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/login', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
