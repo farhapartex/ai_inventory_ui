@@ -1,20 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Button, Card, Typography, Space } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useNavigate } from "react-router";
+import { useAppDispatch, useAuth } from '../../store/hooks';
+import { clearError, loginUser } from '../../store/slices/authSlice';
 
 const { Link, Title } = Typography;
 
 const LoginPage = () => {
+    const dispatch = useAppDispatch();
+    let navigate = useNavigate();
     const [form] = Form.useForm();
 
-    const onFinish = (values) => {
-        console.log('Login form values:', values);
-        // Handle login logic here
+    const { isLoading, error, isAuthenticated } = useAuth();
+
+    const onFinish = async (values) => {
+        const result = await dispatch(loginUser(values));
+        if (loginUser.fulfilled.match(result)) {
+            navigate('/');
+        }
     };
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(clearError());
+        };
+    }, [dispatch]);
 
     return (
         <div style={{
@@ -25,8 +46,6 @@ const LoginPage = () => {
             alignItems: 'center',
             padding: '20px'
         }}>
-
-            {/* Login Card */}
             <Card
                 style={{
                     width: '100%',
