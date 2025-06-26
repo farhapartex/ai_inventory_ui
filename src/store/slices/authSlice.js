@@ -1,17 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-const similateAPICall = (credentials) => {
-    return { token: "aksjdalksjhdlakjshdljkasd" };
-}
+import { authService } from '../../api/authService';
 
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (credentials, { rejectWithValue }) => {
         try {
-            const response = await similateAPICall(credentials);
-            localStorage.setItem('inventoryToken', response.token);
+            const response = await authService.signin(credentials);
+            console.log("hey ", response);
+            if (!response.success || !response.data.token) {
+                return rejectWithValue(response.error || 'Login failed');
+            }
+            localStorage.setItem('inventoryToken', response.data.token);
             return response;
         } catch (error) {
+            if (error.message === 'Network Error') {
+                return rejectWithValue('Network error. Please check your connection.');
+            }
             return rejectWithValue(error.response.data);
         }
     }

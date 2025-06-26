@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Card, Typography, Space } from 'antd';
+import { Form, Input, Button, Card, Typography, notification } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router";
 import { useAppDispatch, useAuth } from '../../store/hooks';
@@ -12,12 +12,25 @@ const LoginPage = () => {
     let navigate = useNavigate();
     const [form] = Form.useForm();
 
+    const [api, contextHolder] = notification.useNotification();
+
     const { isLoading, error, isAuthenticated } = useAuth();
+
+    const openNotificationWithIcon = (type, message) => {
+        api[type]({
+            message: message,
+            description: null,
+            duration: 2
+        });
+    };
 
     const onFinish = async (values) => {
         const result = await dispatch(loginUser(values));
         if (loginUser.fulfilled.match(result)) {
             navigate('/');
+        } else {
+            const errorMessage = result.payload || 'Login failed';
+            openNotificationWithIcon('error', errorMessage);
         }
     };
 
@@ -46,6 +59,7 @@ const LoginPage = () => {
             alignItems: 'center',
             padding: '20px'
         }}>
+            {contextHolder}
             <Card
                 style={{
                     width: '100%',
