@@ -7,7 +7,7 @@ import { clearError, loginUser } from '../../store/slices/authSlice';
 
 const { Link, Title } = Typography;
 
-const LoginPage = () => {
+const SignUpPage = () => {
     const dispatch = useAppDispatch();
     let navigate = useNavigate();
     const [form] = Form.useForm();
@@ -76,7 +76,7 @@ const LoginPage = () => {
                         AI Inventory
                     </Title>
                     <p style={{ color: '#6b7280', marginTop: '8px', fontSize: '16px' }}>
-                        Sign in to your account
+                        Sign up to your account
                     </p>
                 </div>
 
@@ -88,6 +88,44 @@ const LoginPage = () => {
                     layout="vertical"
                     size="large"
                 >
+                    <Form.Item
+                        name="firstName"
+                        label="First Name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your email!',
+                            },
+                        ]}
+                    >
+                        <Input
+                            prefix={<UserOutlined style={{ color: '#9ca3af' }} />}
+                            placeholder="Enter your first name"
+                            style={{
+                                borderRadius: '8px',
+                                padding: '8px'
+                            }}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name="lasttName"
+                        label="Last Name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your email!',
+                            },
+                        ]}
+                    >
+                        <Input
+                            prefix={<UserOutlined style={{ color: '#9ca3af' }} />}
+                            placeholder="Enter your last name"
+                            style={{
+                                borderRadius: '8px',
+                                padding: '8px'
+                            }}
+                        />
+                    </Form.Item>
                     <Form.Item
                         name="email"
                         label="Email"
@@ -107,7 +145,7 @@ const LoginPage = () => {
                             placeholder="Enter your email"
                             style={{
                                 borderRadius: '8px',
-                                padding: '12px'
+                                padding: '8px'
                             }}
                         />
                     </Form.Item>
@@ -131,7 +169,7 @@ const LoginPage = () => {
                             placeholder="Enter your password"
                             style={{
                                 borderRadius: '8px',
-                                padding: '12px'
+                                padding: '8px'
                             }}
                         />
                     </Form.Item>
@@ -140,11 +178,8 @@ const LoginPage = () => {
                         textAlign: 'right',
                         marginBottom: '20px'
                     }}>
-                        <Link href="/" style={{ color: '#6366f1' }}>
-                            Forgot password?
-                        </Link>
-                        <Link href="/signup" style={{ color: '#6366f1', marginLeft: '10px' }}>
-                            Sign Up
+                        <Link href="/login" style={{ color: '#6366f1', marginLeft: '10px' }}>
+                            Already have account?  Sign In
                         </Link>
                     </div>
 
@@ -162,8 +197,9 @@ const LoginPage = () => {
                                 fontWeight: '500'
                             }}
                         >
-                            Sign In
+                            Sign Up
                         </Button>
+                        <p>By clicking 'Sign Up', you are agree with our <Link style={{ color: '#6366f1' }}>terms & conditions</Link></p>
                     </Form.Item>
                 </Form>
             </Card>
@@ -171,4 +207,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default SignUpPage;
