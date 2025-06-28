@@ -13,6 +13,7 @@ import Report from "./pages/Report.js";
 import SystemUsersPage from "./pages/management/user/ListPage.js";
 import RolesPermissionsPage from "./pages/management/role_permission/Role.js";
 import SignUpPage from "./pages/auth/SignUp.js";
+import OnboardPage from "./pages/auth/Onboard.js";
 
 export const routes = [
     {
@@ -26,6 +27,10 @@ export const routes = [
     {
         path: "/signup",
         element: <SignUpPage />,
+    },
+    {
+        path: "/onboard",
+        element: <OnboardPage />,
     },
     {
         path: "/products",
