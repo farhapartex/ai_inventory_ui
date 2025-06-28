@@ -10,7 +10,6 @@ const initialState = {
 export const userMe = createAsyncThunk(
     'user/me',
     async (_, { rejectWithValue }) => {
-        console.log("ping");
         try {
             const response = await userService.me();
             if (!response.success || !response.data) {
@@ -48,7 +47,7 @@ const userSlice = createSlice({
             })
             .addCase(userMe.fulfilled, (state, action) => {
                 state.isUserLoading = false;
-                state.user = action.payload.user;
+                state.user = action.payload.data;
                 state.error = null;
             })
             .addCase(userMe.rejected, (state, action) => {

@@ -34,7 +34,7 @@ const AppLayout = (props) => {
     const { children } = props;
     const [collapsed, setCollapsed] = useState(false);
     const [currentPage, setCurrentPage] = useState('dashboard');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [api, contextHolder] = notification.useNotification();
 
     const dispatch = useAppDispatch();
@@ -151,6 +151,8 @@ const AppLayout = (props) => {
         } else {
             if (user && user.organizations.length === 0) {
                 navigate('/onboard', { replace: true });
+            } else {
+                console.log("user: ", user);
             }
         }
     }, [isAuthenticated, user, navigate]);
