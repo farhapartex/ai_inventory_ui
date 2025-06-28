@@ -51,7 +51,6 @@ export const logoutUser = createAsyncThunk(
 );
 
 const initialState = {
-    user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('inventoryToken') || null,
     isLoading: false,
     isAuthenticated: !!localStorage.getItem('inventoryToken'),
@@ -72,12 +71,6 @@ const authSlice = createSlice({
             state.isLoading = false;
             state.error = null;
         },
-        updateUserProfile: (state, action) => {
-            if (state.user) {
-                state.user = { ...state.user, ...action.payload };
-                localStorage.setItem('user', JSON.stringify(state.user));
-            }
-        },
     },
     extraReducers: (builder) => {
         builder
@@ -88,14 +81,12 @@ const authSlice = createSlice({
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload.user;
                 state.token = action.payload.token;
                 state.error = null;
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
-                state.user = null;
                 state.token = null;
                 state.error = action.payload;
             })
@@ -106,14 +97,12 @@ const authSlice = createSlice({
             .addCase(signUpUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
-                state.user = null;
                 state.token = null;
                 state.error = null;
             })
             .addCase(signUpUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
-                state.user = null;
                 state.token = null;
                 state.error = action.payload;
             })
@@ -125,7 +114,6 @@ const authSlice = createSlice({
             .addCase(logoutUser.fulfilled, (state) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
-                state.user = null;
                 state.token = null;
                 state.error = null;
             })
