@@ -6,11 +6,28 @@ export const loginUser = createAsyncThunk(
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await authService.signin(credentials);
-            console.log("hey ", response);
             if (!response.success || !response.data.token) {
                 return rejectWithValue(response.error || 'Login failed');
             }
             localStorage.setItem('inventoryToken', response.data.token);
+            return response;
+        } catch (error) {
+            if (error.message === 'Network Error') {
+                return rejectWithValue('Network error. Please check your connection.');
+            }
+            return rejectWithValue(error.response.data);
+        }
+    }
+)
+
+export const signUpUser = createAsyncThunk(
+    'auth/signUpUser',
+    async (credentials, { rejectWithValue }) => {
+        try {
+            const response = await authService.signup(credentials);
+            if (!response.success || !response.data.is_success) {
+                return rejectWithValue(response.error || 'Sign Up failed');
+            }
             return response;
         } catch (error) {
             if (error.message === 'Network Error') {
@@ -76,6 +93,24 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(loginUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = false;
+                state.user = null;
+                state.token = null;
+                state.error = action.payload;
+            })
+            .addCase(signUpUser.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(signUpUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = false;
+                state.user = null;
+                state.token = null;
+                state.error = null;
+            })
+            .addCase(signUpUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.user = null;

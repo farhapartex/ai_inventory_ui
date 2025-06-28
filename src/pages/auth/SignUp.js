@@ -3,7 +3,7 @@ import { Form, Input, Button, Card, Typography, notification } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router";
 import { useAppDispatch, useAuth } from '../../store/hooks';
-import { clearError, loginUser } from '../../store/slices/authSlice';
+import { clearError, signUpUser } from '../../store/slices/authSlice';
 
 const { Link, Title } = Typography;
 
@@ -25,17 +25,21 @@ const SignUpPage = () => {
     };
 
     const onFinish = async (values) => {
-        const result = await dispatch(loginUser(values));
-        if (loginUser.fulfilled.match(result)) {
-            navigate('/');
+        const result = await dispatch(signUpUser(values));
+        if (signUpUser.fulfilled.match(result)) {
+            openNotificationWithIcon('success', "SignUp successful! Redirecting to login page...");
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+
         } else {
-            const errorMessage = result.payload || 'Login failed';
+            const errorMessage = result.payload || 'SignUp failed! Try again.';
             openNotificationWithIcon('error', errorMessage);
         }
     };
 
     const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+        openNotificationWithIcon('error', "Please fill all required fields correctly.");
     };
 
     useEffect(() => {
