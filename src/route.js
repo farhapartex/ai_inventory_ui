@@ -14,6 +14,7 @@ import SystemUsersPage from "./pages/management/user/ListPage.js";
 import RolesPermissionsPage from "./pages/management/role_permission/Role.js";
 import SignUpPage from "./pages/auth/SignUp.js";
 import OnboardPage from "./pages/auth/Onboard.js";
+import AuthGuard from "./layouts/AuthGuard.js";
 
 export const routes = [
     {

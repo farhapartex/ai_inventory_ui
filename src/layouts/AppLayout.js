@@ -3,7 +3,9 @@ import {
     Layout,
     Dropdown,
     Avatar,
-    Button
+    Button,
+    Spin,
+    notification
 } from 'antd';
 import {
     DashboardOutlined,
@@ -22,8 +24,9 @@ import {
 } from '@ant-design/icons';
 import { NavLink, useNavigate } from "react-router";
 import { RootLeftBar } from '../components/layout/RootLeftbar';
-import { useAppDispatch, useAuth } from '../store/hooks';
+import { useAppDispatch, useAuth, useUser } from '../store/hooks';
 import { logoutUser } from '../store/slices/authSlice';
+import { userMe } from '../store/slices/userSlice';
 
 const { Header, Content } = Layout;
 
@@ -31,15 +34,41 @@ const AppLayout = (props) => {
     const { children } = props;
     const [collapsed, setCollapsed] = useState(false);
     const [currentPage, setCurrentPage] = useState('dashboard');
+    const [loading, setLoading] = useState(true);
+    const [api, contextHolder] = notification.useNotification();
 
     const dispatch = useAppDispatch();
     let navigate = useNavigate();
+
     const { isLoading, error, isAuthenticated } = useAuth();
+    const { user, isUserLoading } = useUser();
+
+    const openNotificationWithIcon = (type, message) => {
+        api[type]({
+            message: message,
+            description: null,
+            duration: 2
+        });
+    };
 
     const logout = async () => {
         const result = await dispatch(logoutUser());
         if (logoutUser.fulfilled.match(result)) {
             navigate('/login', { replace: true });
+        }
+    }
+
+    const fetchUserMeData = async () => {
+        const result = await dispatch(userMe());
+        if (userMe.fulfilled.match(result)) {
+            let userData = result.payload.data;
+            setLoading(false);
+            if (userData && userData.organizations.length === 0) {
+                navigate('/onboard', { replace: true });
+            }
+        } else {
+            const errorMessage = result.payload || 'Failed to load user data';
+            openNotificationWithIcon('error', errorMessage);
         }
     }
 
@@ -115,10 +144,35 @@ const AppLayout = (props) => {
         if (!isAuthenticated) {
             navigate('/login', { replace: true });
         }
-    }, [isAuthenticated, navigate]);
+
+        if (user == null) {
+            setLoading(true);
+            fetchUserMeData();
+        } else {
+            if (user && user.organizations.length === 0) {
+                navigate('/onboard', { replace: true });
+            }
+        }
+    }, [isAuthenticated, user, navigate]);
+
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                flexDirection: 'column'
+            }}>
+                <Spin size="large" />
+                <p style={{ marginTop: '16px', color: '#666' }}>Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
+            {contextHolder}
             <RootLeftBar collapsed={collapsed} currentPage={currentPage} menuItems={menuItems} />
 
             <Layout>

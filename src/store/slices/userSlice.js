@@ -3,18 +3,20 @@ import { userService } from "../../api/user";
 
 const initialState = {
     user: JSON.parse(localStorage.getItem('user')) || null,
-    isLoading: false,
+    isUserLoading: false,
     error: null,
 };
 
 export const userMe = createAsyncThunk(
     'user/me',
-    async ({ rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
+        console.log("ping");
         try {
             const response = await userService.me();
             if (!response.success || !response.data) {
                 return rejectWithValue(response.error || 'Failed to fetch user data');
             }
+            localStorage.setItem('user', JSON.stringify(response.data));
             return response;
         } catch (error) {
             if (error.message === 'Network Error') {
@@ -34,23 +36,23 @@ const userSlice = createSlice({
         },
         resetUser: (state) => {
             state.user = null;
-            state.isLoading = false;
+            state.isUserLoading = false;
             state.error = null;
         },
     },
     extraReducers: (builder) => {
         builder
             .addCase(userMe.pending, (state) => {
-                state.isLoading = true;
+                state.isUserLoading = true;
                 state.error = null;
             })
             .addCase(userMe.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.isUserLoading = false;
                 state.user = action.payload.user;
                 state.error = null;
             })
             .addCase(userMe.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isUserLoading = false;
                 state.user = null;
                 state.error = action.payload;
             })
