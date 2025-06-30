@@ -60,15 +60,15 @@ const AppLayout = (props) => {
 
     const fetchUserMeData = async () => {
         const result = await dispatch(userMe());
+        console.log(result);
         if (userMe.fulfilled.match(result)) {
             let userData = result.payload.data;
             setLoading(false);
             if (userData && userData.organizations.length === 0) {
                 navigate('/onboard', { replace: true });
             }
-        } else {
-            const errorMessage = result.payload || 'Failed to load user data';
-            openNotificationWithIcon('error', errorMessage);
+        } else if (userMe.rejected.match(result)) {
+            logout();
         }
     }
 
