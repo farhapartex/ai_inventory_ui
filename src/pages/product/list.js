@@ -28,6 +28,7 @@ import {
     ExportOutlined
 } from '@ant-design/icons';
 import AppLayout from '../../layouts/AppLayout';
+import ProductCategoryModal from '../../components/modals/ProductCategory';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -75,13 +76,12 @@ const ProductListPage = () => {
         showQuickJumper: true,
         showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} products`,
     });
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Initialize data
     useEffect(() => {
         loadProducts();
     }, []);
 
-    // Filter products based on search
     useEffect(() => {
         if (!searchText) {
             setFilteredProducts(products);
@@ -126,7 +126,6 @@ const ProductListPage = () => {
 
     const handleEdit = (record) => {
         message.info(`Edit product: ${record.name}`);
-        // Navigate to edit page
     };
 
     const handleView = (record) => {
@@ -332,12 +331,34 @@ const ProductListPage = () => {
     return (
         <AppLayout>
             <div>
-                <div style={{ marginBottom: 24 }}>
+                <div style={{ marginBottom: 24, float: 'right' }}>
+                    <Button
+                        type="primary"
+                        icon={null}
+                        size="large"
+                        onClick={() => setIsModalOpen(true)}
+                        style={{ minWidth: 140 }}
+                    >
+                        Product Category
+                    </Button>
+                    <Button
+                        type="primary"
+                        icon={null}
+                        size="large"
+                        onClick={() => navigate("/products/new")}
+                        style={{ minWidth: 140, marginLeft: '10px' }}
+                    >
+                        Suppliers
+                    </Button>
+                </div>
+                <div style={{ marginBottom: 24, }}>
                     <Title level={2} style={{ margin: 0 }}>Products</Title>
                     <p style={{ color: '#666', marginTop: 8 }}>
                         Manage your product inventory and track stock levels
                     </p>
                 </div>
+
+                <ProductCategoryModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
 
                 <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                     <Col xs={24} sm={12} md={16} lg={18} xl={20}>
