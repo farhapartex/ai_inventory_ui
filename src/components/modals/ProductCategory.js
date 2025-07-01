@@ -15,17 +15,25 @@ import {
     Row,
     Col,
     Select,
-    Card
+    Card,
+    InputNumber,
+    Switch,
+    Divider,
+    TreeSelect
 } from 'antd';
 import {
     EditOutlined,
     DeleteOutlined,
     EyeOutlined,
     MoreOutlined,
-    SaveOutlined
+    SaveOutlined,
+    PlusOutlined,
+    FolderOutlined,
+    TagOutlined
 } from '@ant-design/icons';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { TextArea } = Input;
 
 const generateSampleData = () => {
     const categories = ['Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 'Automotive'];
@@ -33,10 +41,29 @@ const generateSampleData = () => {
 
     return Array.from({ length: categories.length }, (_, index) => ({
         key: index + 1,
+        id: index + 1,
+        name: categories[index],
+        code: categories[index].toUpperCase().replace(/\s+/g, '_'),
+        description: `${categories[index]} category description`,
+        parent_id: index > 2 ? Math.floor(Math.random() * 3) + 1 : null,
+        sort_order: index * 10,
+        is_active: Math.random() > 0.2,
         category: categories[index],
         quantity: Math.floor(Math.random() * 1000),
         status: statuses[Math.floor(Math.random() * statuses.length)]
     }));
+};
+
+
+const generateParentCategoryOptions = (categories) => {
+    return categories
+        .filter(cat => !cat.parent_id)
+        .map(cat => ({
+            title: cat.name,
+            value: cat.id,
+            key: cat.id,
+            icon: <FolderOutlined />
+        }));
 };
 
 const ProductCategoryModal = (props) => {
@@ -47,13 +74,14 @@ const ProductCategoryModal = (props) => {
     const [loading, setLoading] = useState(false);
     const [showTable, setShowTable] = useState(true);
     const [categories, setCategories] = useState([]);
+    const [parentCategoryOptions, setParentCategoryOptions] = useState([]);
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 10,
         total: 0,
         showSizeChanger: true,
         showQuickJumper: true,
-        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} products`,
+        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} categories`,
     });
 
     const loadCategories = () => {
@@ -62,6 +90,7 @@ const ProductCategoryModal = (props) => {
             const data = generateSampleData();
             setCategories(data);
             setFilteredCategories(data);
+            setParentCategoryOptions(generateParentCategoryOptions(data));
             setPagination(prev => ({
                 ...prev,
                 total: data.length
@@ -76,6 +105,8 @@ const ProductCategoryModal = (props) => {
 
     const handleCancel = () => {
         setIsModalOpen(false);
+        setShowTable(true);
+        form.resetFields();
     };
 
     const handleOk = () => {
@@ -99,33 +130,40 @@ const ProductCategoryModal = (props) => {
     };
 
     const handleEdit = (record) => {
-        message.info(`Edit product: ${record.name}`);
+        message.info(`Edit category: ${record.name}`);
+        form.setFieldsValue({
+            name: record.name,
+            code: record.code,
+            description: record.description,
+            parent_id: record.parent_id,
+            sort_order: record.sort_order,
+            is_active: record.is_active
+        });
+        setShowTable(false);
     };
 
     const handleView = (record) => {
-        message.info(`View product details: ${record.name}`);
+        message.info(`View category details: ${record.name}`);
     };
 
     const handleDelete = (record) => {
-        // confirm({
-        //     title: 'Are you sure you want to delete this product?',
-        //     icon: <ExclamationCircleOutlined />,
-        //     content: `Product: ${record.name} (${record.sku})`,
-        //     okText: 'Yes, Delete',
-        //     okType: 'danger',
-        //     cancelText: 'Cancel',
-        //     onOk() {
-        //         // Simulate delete
-        //         const updatedProducts = products.filter(product => product.key !== record.key);
-        //         setProducts(updatedProducts);
-        //         setFilteredProducts(updatedProducts);
-        //         setPagination(prev => ({
-        //             ...prev,
-        //             total: updatedProducts.length
-        //         }));
-        //         message.success('Product deleted successfully');
-        //     },
-        // });
+        Modal.confirm({
+            title: 'Are you sure you want to delete this category?',
+            content: `Category: ${record.name} (${record.code})`,
+            okText: 'Yes, Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk() {
+                const updatedCategories = categories.filter(category => category.key !== record.key);
+                setCategories(updatedCategories);
+                setFilteredCategories(updatedCategories);
+                setPagination(prev => ({
+                    ...prev,
+                    total: updatedCategories.length
+                }));
+                message.success('Category deleted successfully');
+            },
+        });
     };
 
     const actionMenuItems = (record) => [
@@ -138,7 +176,7 @@ const ProductCategoryModal = (props) => {
         {
             key: 'edit',
             icon: <EditOutlined />,
-            label: 'Edit Product',
+            label: 'Edit Category',
             onClick: () => handleEdit(record)
         },
         {
@@ -147,7 +185,7 @@ const ProductCategoryModal = (props) => {
         {
             key: 'delete',
             icon: <DeleteOutlined />,
-            label: 'Delete Product',
+            label: 'Delete Category',
             danger: true,
             onClick: () => handleDelete(record)
         },
@@ -155,70 +193,101 @@ const ProductCategoryModal = (props) => {
 
     const columns = [
         {
-            title: 'Category',
-            dataIndex: 'category',
-            key: 'category',
-            width: 130,
-            filters: [
-                { text: 'Electronics', value: 'Electronics' },
-                { text: 'Clothing', value: 'Clothing' },
-                { text: 'Home & Garden', value: 'Home & Garden' },
-                { text: 'Sports', value: 'Sports' },
-                { text: 'Books', value: 'Books' },
-                { text: 'Automotive', value: 'Automotive' },
-            ],
-            onFilter: (value, record) => record.category === value,
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+            width: 150,
+            render: (name, record) => (
+                <div>
+                    <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <TagOutlined />
+                        {name}
+                    </div>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        Code: {record.code}
+                    </Text>
+                </div>
+            ),
         },
         {
-            title: 'Product Quantity',
-            dataIndex: 'quantity',
-            key: 'quantity',
-            width: 120,
-            render: (quantity) => {
-                const status = getQuantityStatus(quantity);
-                return (
-                    <div>
-                        <div style={{ fontWeight: 500 }}>{quantity}</div>
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+            width: 200,
+            render: (description) => (
+                <Tooltip title={description}>
+                    <div style={{
+                        maxWidth: 180,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                    }}>
+                        {description || '-'}
                     </div>
+                </Tooltip>
+            ),
+        },
+        {
+            title: 'Parent Category',
+            dataIndex: 'parent_id',
+            key: 'parent_id',
+            width: 130,
+            render: (parentId) => {
+                const parent = categories.find(cat => cat.id === parentId);
+                return parent ? (
+                    <Tag icon={<FolderOutlined />} color="blue">
+                        {parent.name}
+                    </Tag>
+                ) : (
+                    <Text type="secondary">Root Category</Text>
                 );
             },
-            sorter: (a, b) => a.quantity - b.quantity,
+        },
+        {
+            title: 'Sort Order',
+            dataIndex: 'sort_order',
+            key: 'sort_order',
+            width: 100,
+            sorter: (a, b) => a.sort_order - b.sort_order,
+            render: (order) => (
+                <Tag color="purple">{order}</Tag>
+            ),
         },
         {
             title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-            width: 120,
-            render: (status) => (
-                <Tag color={getStatusColor(status)}>{status}</Tag>
+            dataIndex: 'is_active',
+            key: 'is_active',
+            width: 100,
+            render: (isActive) => (
+                <Tag color={isActive ? 'green' : 'red'}>
+                    {isActive ? 'Active' : 'Inactive'}
+                </Tag>
             ),
             filters: [
-                { text: 'In Stock', value: 'In Stock' },
-                { text: 'Low Stock', value: 'Low Stock' },
-                { text: 'Out of Stock', value: 'Out of Stock' },
-                { text: 'Discontinued', value: 'Discontinued' },
+                { text: 'Active', value: true },
+                { text: 'Inactive', value: false },
             ],
-            onFilter: (value, record) => record.status === value,
+            onFilter: (value, record) => record.is_active === value,
         },
         {
             title: 'Actions',
             key: 'actions',
             fixed: 'right',
-            width: 100,
+            width: 120,
             render: (_, record) => (
                 <Space>
                     <Tooltip title="View Details">
                         <Button
                             type="text"
                             icon={<EyeOutlined />}
-                            onClick={() => navigate(`/products/${record.id}`)}
+                            onClick={() => handleView(record)}
                         />
                     </Tooltip>
-                    <Tooltip title="Edit Product">
+                    <Tooltip title="Edit Category">
                         <Button
                             type="text"
                             icon={<EditOutlined />}
-                            onClick={() => { }}
+                            onClick={() => handleEdit(record)}
                         />
                     </Tooltip>
                     <Dropdown
@@ -235,9 +304,18 @@ const ProductCategoryModal = (props) => {
 
     const onFinish = async (values) => {
         try {
-            console.log(values);
+            setLoading(true);
+            setTimeout(() => {
+                console.log('Form values:', values);
+                message.success('Category saved successfully!');
+                setLoading(false);
+                form.resetFields();
+                setShowTable(true);
+                loadCategories();
+            }, 1000);
         } catch (error) {
-            message.error(`Failed to create. Please try again.`);
+            setLoading(false);
+            message.error(`Failed to save category. Please try again.`);
         }
     };
 
@@ -246,30 +324,49 @@ const ProductCategoryModal = (props) => {
         console.log('Failed:', errorInfo);
     };
 
+    const handleNameChange = (e) => {
+        const name = e.target.value;
+        const code = name.toUpperCase().replace(/[^A-Z0-9]/g, '_').replace(/_+/g, '_');
+        form.setFieldValue('code', code);
+    };
+
     useEffect(() => {
         loadCategories();
     }, []);
 
-
     return (
         <Modal
-            title="Product Categories"
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <TagOutlined />
+                    <span>Product Categories</span>
+                </div>
+            }
             closable={{ 'aria-label': 'Custom Close Button' }}
             open={isModalOpen}
             onOk={handleOk}
             onCancel={handleCancel}
-            width={800}
+            width={1000}
             footer={null}
+            styles={{
+                body: { padding: '24px' }
+            }}
         >
-
-            {showTable &&
+            {showTable && (
                 <>
-                    <div style={{ marginBottom: 24, float: 'right' }}>
+                    <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <Title level={4} style={{ margin: 0 }}>Category Management</Title>
+                            <Text type="secondary">Manage your product categories and hierarchy</Text>
+                        </div>
                         <Button
                             type="primary"
-                            icon={null}
+                            icon={<PlusOutlined />}
                             size="medium"
-                            onClick={() => setShowTable(false)}
+                            onClick={() => {
+                                form.resetFields();
+                                setShowTable(false);
+                            }}
                             style={{ minWidth: 140 }}
                         >
                             New Category
@@ -285,7 +382,7 @@ const ProductCategoryModal = (props) => {
                             showSizeChanger: true,
                             showQuickJumper: true,
                             showTotal: (total, range) =>
-                                `Showing ${range[0]}-${range[1]} of ${total} products`,
+                                `Showing ${range[0]}-${range[1]} of ${total} categories`,
                         }}
                         loading={loading}
                         onChange={handleTableChange}
@@ -293,81 +390,179 @@ const ProductCategoryModal = (props) => {
                         rowSelection={{
                             type: 'checkbox',
                             onChange: (selectedRowKeys, selectedRows) => {
-                                console.log('Selected products:', selectedRows);
+                                console.log('Selected categories:', selectedRows);
                             },
                         }}
+                        scroll={{ x: 800 }}
                         style={{ marginBottom: '30px' }}
                     />
                 </>
-            }
+            )}
 
-            {!showTable &&
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
-                    scrollToFirstError
-                    initialValues={{
-                        status: 'active',
-                        visibility: 'visible',
-                        trackQuantity: true,
-                        availableOnline: true,
-                        featured: false
-                    }}
-                >
-                    <Form.Item
-                        name="category"
-                        label="Category"
-                        rules={[
-                            { required: true, message: 'Please enter product name' },
-                            { min: 2, message: 'Name must be at least 2 characters' },
-                            { max: 100, message: 'Name cannot exceed 100 characters' }
-                        ]}
-                    >
-                        <Input
-                            placeholder="Enter category name"
-                            onChange={() => { }}
-                        />
-                    </Form.Item>
-                    <Form.Item name="status" label="Status">
-                        <Select
-                            placeholder="Select status"
-                            options={[
-                                { label: 'Red', value: 'red' },
-                                { label: 'Blue', value: 'blue' },
-                                { label: 'Green', value: 'green' },
-                                { label: 'Black', value: 'black' },
-                                { label: 'White', value: 'white' },
-                                { label: 'Yellow', value: 'yellow' },
-                                { label: 'Purple', value: 'purple' },
-                                { label: 'Orange', value: 'orange' }
-                            ]}
-                        />
-                    </Form.Item>
+            {!showTable && (
+                <div>
+                    <div style={{ marginBottom: 24 }}>
+                        <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <PlusOutlined />
+                            Create New Category
+                        </Title>
+                        <Text type="secondary">Add a new product category to organize your products</Text>
+                    </div>
 
-                    <Row justify="end">
-                        <Col>
-                            <Space>
-                                <Button size="medium" onClick={() => setShowTable(true)}>
-                                    Back
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    size="medium"
-                                    htmlType="submit"
-                                    loading={loading}
-                                    icon={<SaveOutlined />}
-                                >
-                                    Save
-                                </Button>
-                            </Space>
-                        </Col>
-                    </Row>
-                </Form>
-            }
+                    <Card style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                        <Form
+                            form={form}
+                            layout="vertical"
+                            onFinish={onFinish}
+                            onFinishFailed={onFinishFailed}
+                            scrollToFirstError
+                            initialValues={{
+                                is_active: true,
+                                sort_order: 0
+                            }}
+                        >
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="name"
+                                        label={
+                                            <span style={{ fontWeight: 500 }}>
+                                                Category Name <span style={{ color: '#ff4d4f' }}>*</span>
+                                            </span>
+                                        }
+                                        rules={[
+                                            { required: true, message: 'Please enter category name' },
+                                            { min: 2, message: 'Name must be at least 2 characters' },
+                                            { max: 100, message: 'Name cannot exceed 100 characters' }
+                                        ]}
+                                    >
+                                        <Input
+                                            placeholder="Enter category name (e.g., Electronics)"
+                                            onChange={handleNameChange}
+                                            size="large"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="code"
+                                        label={
+                                            <span style={{ fontWeight: 500 }}>
+                                                Category Code <span style={{ color: '#ff4d4f' }}>*</span>
+                                            </span>
+                                        }
+                                        rules={[
+                                            { required: true, message: 'Please enter category code' },
+                                            { min: 2, message: 'Code must be at least 2 characters' },
+                                            { max: 20, message: 'Code cannot exceed 20 characters' },
+                                            { pattern: /^[A-Z0-9_]+$/, message: 'Code must contain only uppercase letters, numbers, and underscores' }
+                                        ]}
+                                    >
+                                        <Input
+                                            placeholder="Category code (auto-generated)"
+                                            size="large"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Form.Item
+                                name="description"
+                                label={<span style={{ fontWeight: 500 }}>Description</span>}
+                                rules={[
+                                    { max: 500, message: 'Description cannot exceed 500 characters' }
+                                ]}
+                            >
+                                <TextArea
+                                    placeholder="Enter category description (optional)"
+                                    rows={3}
+                                    showCount
+                                    maxLength={500}
+                                />
+                            </Form.Item>
+
+                            <Row gutter={[16, 0]}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="parent_id"
+                                        label={<span style={{ fontWeight: 500 }}>Parent Category</span>}
+                                    >
+                                        <TreeSelect
+                                            placeholder="Select parent category (optional)"
+                                            allowClear
+                                            treeData={parentCategoryOptions}
+                                            size="large"
+                                            dropdownStyle={{ maxHeight: 300, overflow: 'auto' }}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="sort_order"
+                                        label={<span style={{ fontWeight: 500 }}>Sort Order</span>}
+                                        tooltip="Higher numbers appear later in the list"
+                                    >
+                                        <InputNumber
+                                            placeholder="0"
+                                            min={0}
+                                            max={9999}
+                                            style={{ width: '100%' }}
+                                            size="large"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Divider />
+
+                            <Row gutter={[16, 0]} align="middle">
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="is_active"
+                                        label={<span style={{ fontWeight: 500 }}>Status</span>}
+                                        valuePropName="checked"
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <Switch size="default" />
+                                            <Text>Active category</Text>
+                                        </div>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Divider />
+
+                            <Row justify="end">
+                                <Col>
+                                    <Space size="middle">
+                                        <Button
+                                            size="large"
+                                            onClick={() => {
+                                                setShowTable(true);
+                                                form.resetFields();
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="primary"
+                                            size="large"
+                                            htmlType="submit"
+                                            loading={loading}
+                                            icon={<SaveOutlined />}
+                                            style={{ minWidth: 120 }}
+                                        >
+                                            Save Category
+                                        </Button>
+                                    </Space>
+                                </Col>
+                            </Row>
+                        </Form>
+                    </Card>
+                </div>
+            )}
         </Modal>
-    )
-}
+    );
+};
 
 export default ProductCategoryModal;
