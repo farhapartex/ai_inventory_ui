@@ -10,3 +10,7 @@ export const useAuth = () => {
 export const useUser = () => {
     return useAppSelector((state) => state.user);
 };
+
+export const useProduct = () => {
+    return useAppSelector((state) => state.user);
+};

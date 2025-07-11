@@ -60,7 +60,6 @@ const AppLayout = (props) => {
 
     const fetchUserMeData = async () => {
         const result = await dispatch(userMe());
-        console.log(result);
         if (userMe.fulfilled.match(result)) {
             let userData = result.payload.data;
             setLoading(false);

@@ -31,6 +31,8 @@ import {
     FolderOutlined,
     TagOutlined
 } from '@ant-design/icons';
+import { useAppDispatch } from "../../store/hooks";
+import { productCategory } from "../../store/slices/product";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -68,6 +70,7 @@ const generateParentCategoryOptions = (categories) => {
 
 const ProductCategoryModal = (props) => {
     let navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const [form] = Form.useForm();
     const { isModalOpen, setIsModalOpen } = props;
     const [filteredCategories, setFilteredCategories] = useState([]);
@@ -84,19 +87,34 @@ const ProductCategoryModal = (props) => {
         showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} categories`,
     });
 
-    const loadCategories = () => {
-        setLoading(true);
-        setTimeout(() => {
-            const data = generateSampleData();
-            setCategories(data);
-            setFilteredCategories(data);
-            setParentCategoryOptions(generateParentCategoryOptions(data));
+    const loadCategories = async () => {
+        // setLoading(true);
+        // setTimeout(() => {
+        //     const data = generateSampleData();
+        //     setCategories(data);
+        //     setFilteredCategories(data);
+        //     setParentCategoryOptions(generateParentCategoryOptions(data));
+        //     setPagination(prev => ({
+        //         ...prev,
+        //         total: data.length
+        //     }));
+        //     setLoading(false);
+        // }, 1000);
+
+        const result = await dispatch(productCategory());
+        if (productCategory.fulfilled.match(result)) {
+            let response = result.payload.data;
+            console.log(response);
+            setCategories(response.data);
+            setFilteredCategories(response.data);
+            setParentCategoryOptions(generateParentCategoryOptions(response.data));
             setPagination(prev => ({
                 ...prev,
-                total: data.length
+                total: response.total
             }));
-            setLoading(false);
-        }, 1000);
+        } else if (productCategory.rejected.match(result)) {
+            console.log(result);
+        }
     };
 
     const handleTableChange = (newPagination, filters, sorter) => {
@@ -131,13 +149,14 @@ const ProductCategoryModal = (props) => {
 
     const handleEdit = (record) => {
         message.info(`Edit category: ${record.name}`);
+        console.log(record.is_active === true ? "True" : "False");
         form.setFieldsValue({
             name: record.name,
             code: record.code,
             description: record.description,
             parent_id: record.parent_id,
             sort_order: record.sort_order,
-            is_active: record.is_active
+            is_active: record.is_active === true || record.is_active === 1 || record.is_active === "true"
         });
         setShowTable(false);
     };
@@ -521,11 +540,13 @@ const ProductCategoryModal = (props) => {
                                         name="is_active"
                                         label={<span style={{ fontWeight: 500 }}>Status</span>}
                                         valuePropName="checked"
+                                        normalize={(value) => Boolean(value)}
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                            <Switch size="default" />
-                                            <Text>Active category</Text>
-                                        </div>
+                                        <Switch
+                                            size="default"
+                                            checkedChildren="Active"
+                                            unCheckedChildren="Inactive"
+                                        />
                                     </Form.Item>
                                 </Col>
                             </Row>
